@@ -935,8 +935,12 @@ __webpack_require__.r(__webpack_exports__);
 window.addEventListener('DOMContentLoaded', function () {
   'Use strict';
 
-  Object(_modules_modalWindow__WEBPACK_IMPORTED_MODULE_0__["default"])('.button-design', '.popup-design', '.popup-design .popup-close', '.fixed-gift');
-  Object(_modules_modalWindow__WEBPACK_IMPORTED_MODULE_0__["default"])('.button-consultation', '.popup-consultation', '.popup-consultation .popup-close', '.fixed-gift');
+  var wasOpenWindow = {
+    pressAnyBtn: false
+  };
+  Object(_modules_modalWindow__WEBPACK_IMPORTED_MODULE_0__["default"])('.button-design', '.popup-design', '.popup-design .popup-close', '.fixed-gift', wasOpenWindow);
+  Object(_modules_modalWindow__WEBPACK_IMPORTED_MODULE_0__["default"])('.button-consultation', '.popup-consultation', '.popup-consultation .popup-close', '.fixed-gift', wasOpenWindow);
+  Object(_modules_modalWindow__WEBPACK_IMPORTED_MODULE_0__["default"])('.fixed-gift', '.popup-gift', '.popup-gift .popup-close', '.fixed-gift', wasOpenWindow, true);
 });
 
 /***/ }),
@@ -954,7 +958,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0__);
 
 
-var bindModal = function bindModal(btnSelector, modalSelector, closeSelector, giftSelector) {
+var bindModal = function bindModal(btnSelector, modalSelector, closeSelector, giftSelector, wasOpenWindow) {
+  var destroy = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : false;
   var btnOpenModals = document.querySelectorAll(btnSelector),
       modal = document.querySelector(modalSelector),
       btnCloseModal = document.querySelector(closeSelector),
@@ -963,6 +968,12 @@ var bindModal = function bindModal(btnSelector, modalSelector, closeSelector, gi
       giftRight = getComputedStyle(gift).right,
       scrollWidth = "".concat(window.innerWidth - document.documentElement.clientWidth, "px"),
       giftRightWhenModalOpen = "".concat(parseInt(scrollWidth) + parseInt(giftRight), "px");
+
+  function animatedModal() {
+    allModalsWindow.forEach(function (modal) {
+      modal.classList.add('animated', 'fadeIn');
+    });
+  }
 
   function closeModal() {
     modal.style.display = 'none';
@@ -976,6 +987,12 @@ var bindModal = function bindModal(btnSelector, modalSelector, closeSelector, gi
     document.body.style.marginRight = scrollWidth;
     document.body.style.overflow = 'hidden';
     gift.style.right = giftRightWhenModalOpen;
+
+    if (destroy) {
+      gift.remove();
+    }
+
+    wasOpenWindow.pressAnyBtn = true;
   }
 
   function showModlByTime(selector, time) {
@@ -993,6 +1010,22 @@ var bindModal = function bindModal(btnSelector, modalSelector, closeSelector, gi
         openModal(_modal);
       }
     }, time);
+  }
+
+  function openGiftByScroll() {
+    // let scrollHeight = Math.max(
+    //     document.body.scrollHeight, document.documentElement.scrollHeight,
+    //     document.body.offsetHeight, document.documentElement.offsetHeight,
+    //     document.body.clientHeight, document.documentElement.clientHeight
+    //   );
+    window.addEventListener('scroll', function () {
+      var heightOfAllDocument = document.documentElement.scrollHeight,
+          heightWindowWithScroll = document.documentElement.clientHeight + window.pageYOffset;
+
+      if (heightOfAllDocument <= heightWindowWithScroll && !wasOpenWindow.pressAnyBtn) {
+        gift.click();
+      }
+    });
   }
 
   btnOpenModals.forEach(function (btnOpen) {
@@ -1014,7 +1047,9 @@ var bindModal = function bindModal(btnSelector, modalSelector, closeSelector, gi
       closeModal();
     }
   });
-  showModlByTime('.popup-consultation', 3000);
+  showModlByTime('.popup-consultation', 60000);
+  openGiftByScroll();
+  animatedModal();
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (bindModal);
