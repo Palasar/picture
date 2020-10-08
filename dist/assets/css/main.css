@@ -108,6 +108,7 @@ h4 {
 }
 .header .container {
   padding: 0;
+
 }
 .header .burger {
   margin-right: -1rem;
@@ -1725,3 +1726,72 @@ h4 {
     width: 25rem;
   }
 }
+  
+  
+/* @keyframes shiftInRight {
+  from {
+    transform: translate3d(100%, 0, 0);
+   opacity: 0;
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+   opacity: 1;
+  }
+}
+
+.shiftInRight {
+  animation-name: shiftInRight;
+}
+
+@keyframes shiftOutLeft {
+  from {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-100%, 0, 0);;
+   opacity: 0;
+  }
+}
+
+.shiftOutLeft {
+  animation-name: shiftOutLeft;
+
+  
+}
+
+@keyframes shiftOutRight {
+  from {
+  opacity: 1;
+  
+  }
+
+  to {
+    transform: translate3d(100%, 0, 0);
+   opacity: 0;
+  }
+}
+
+.shiftOutRight {
+  animation-name: shiftOutRight;
+  
+}
+
+@keyframes shiftInLeft {
+  from {
+    transform: translate3d(-100%, 0, 0);
+   opacity: 0;
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+   opacity: 1;
+  }
+}
+
+.shiftInLeft {
+  animation-name: shiftInLeft; */
+}
+

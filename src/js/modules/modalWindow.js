@@ -98,7 +98,7 @@ const bindModal = (btnSelector, modalSelector, closeSelector, giftSelector, wasO
         }
     });
     
-    showModlByTime('.popup-consultation', 60000);
+    // showModlByTime('.popup-consultation', 60000);
     openGiftByScroll();
     animatedModal();
 };
