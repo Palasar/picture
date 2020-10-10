@@ -78,7 +78,7 @@ const forms = () => {
             const formData = new FormData(form);
             
             let api = form.getAttribute('data-callBack') ? pathServer.callBack : pathServer.ordrerDesigher;
-
+          
             postData(api, formData)
                 .then(response => {
                     console.log(response);

@@ -4,8 +4,8 @@ const gulp = require("gulp");
 const webpack = require("webpack-stream");
 const browsersync = require("browser-sync");
 
-// const dist = "./dist/";
-const dist = '../../../MAMP/MAMP/htdocs/glazingBalcon';
+const dist = "./dist/";
+// const dist = '../../../MAMP/MAMP/htdocs/glazingBalcon';
 gulp.task("copy-html", () => {
     return gulp.src("./src/index.html")
                 .pipe(gulp.dest(dist))
@@ -27,14 +27,14 @@ gulp.task("build-js", () => {
                           test: /\.m?js$/,
                           exclude: /(node_modules|bower_components)/,
                           use: {
-                            loader: 'babel-loader'
-                            // options: {
-                            //   presets: [['@babel/preset-env', {
-                            //       debug: true,
-                            //       corejs: 3,
-                            //       useBuiltIns: "usage"
-                            //   }]]
-                            // }
+                            loader: 'babel-loader',
+                            options: {
+                              presets: [['@babel/preset-env', {
+                                  debug: true,
+                                  corejs: 3,
+                                  useBuiltIns: "usage"
+                              }]]
+                            }
                           }
                         }
                       ]
