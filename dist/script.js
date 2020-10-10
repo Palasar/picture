@@ -932,6 +932,8 @@ module.exports = g;
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_modalWindow__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/modalWindow */ "./src/js/modules/modalWindow.js");
 /* harmony import */ var _modules_slider__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/slider */ "./src/js/modules/slider.js");
+/* harmony import */ var _modules_forms__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/forms */ "./src/js/modules/forms.js");
+
 
 
 window.addEventListener('DOMContentLoaded', function () {
@@ -946,6 +948,21 @@ window.addEventListener('DOMContentLoaded', function () {
   Object(_modules_slider__WEBPACK_IMPORTED_MODULE_1__["default"])('', '.main-slider', '.main-slider-item', '', '', 'vertical');
   Object(_modules_slider__WEBPACK_IMPORTED_MODULE_1__["default"])('.feedback', '.feedback-slider', '.feedback-slider-item', '.main-next-btn', '.main-prev-btn');
 });
+
+/***/ }),
+
+/***/ "./src/js/modules/forms.js":
+/*!*********************************!*\
+  !*** ./src/js/modules/forms.js ***!
+  \*********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+var forms = function forms() {};
+
+/* harmony default export */ __webpack_exports__["default"] = (forms);
 
 /***/ }),
 
@@ -1106,16 +1123,16 @@ var slider = function slider(sectionSelector, wrapperSliderSelector, slideSelect
   function autoShiftSlide(dir) {
     if (dir === 'vertical') {
       paused = setInterval(function () {
-        shiftSlide(1, 'fadeOutLeft', 'fadeInRight');
+        shiftSlide(1, 'fadeOutDown', 'fadeInDown');
       }, 6000);
     } else {
       paused = setInterval(function () {
         shiftSlide(1, 'fadeOutLeft', 'fadeInRight');
       }, 6000);
     }
-  }
+  } // autoShiftSlide(direction);
 
-  autoShiftSlide(direction);
+
   wrapperSlider.addEventListener('mouseenter', function () {
     return clearInterval(paused);
   });

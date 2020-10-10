@@ -1,5 +1,7 @@
+import "core-js";
 import bindModal from './modules/modalWindow';
 import slider from './modules/slider';
+import forms from './modules/forms';
 
 window.addEventListener('DOMContentLoaded', () => {
     'Use strict';
@@ -13,4 +15,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
     slider('', '.main-slider', '.main-slider-item', '', '', 'vertical');
     slider('.feedback', '.feedback-slider', '.feedback-slider-item', '.main-next-btn', '.main-prev-btn');
+
+    forms();
 });

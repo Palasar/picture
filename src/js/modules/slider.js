@@ -32,7 +32,7 @@ const slider = (sectionSelector, wrapperSliderSelector, slideSelector, nextSelec
     function autoShiftSlide(dir){
         if(dir === 'vertical') {
         paused = setInterval(() => {
-            shiftSlide(1, 'fadeOutLeft', 'fadeInRight');
+            shiftSlide(1, 'fadeOutDown', 'fadeInDown');
             }, 6000);
         }else{
             paused = setInterval(() => {
@@ -42,7 +42,7 @@ const slider = (sectionSelector, wrapperSliderSelector, slideSelector, nextSelec
             }, 6000);
         }
     }
-    autoShiftSlide(direction);
+    // autoShiftSlide(direction);
 
     wrapperSlider.addEventListener('mouseenter', () => clearInterval(paused));
     wrapperSlider.addEventListener('mouseleave', () => autoShiftSlide(direction));
