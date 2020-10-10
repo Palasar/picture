@@ -16,8 +16,8 @@ const maskForNumberPhone  = (selector) => {
     }
 
     function createMask() {
-        const matrix = '+7 (___) ___ __ __',
-              defaultMatrix = '7';
+        const matrix = '+38 (___) ___ __ __',
+              defaultMatrix = '38';
 
         let i = 0,
             valueInput = this.value.replace(/\D/g, '');
@@ -26,20 +26,20 @@ const maskForNumberPhone  = (selector) => {
         if(defaultMatrix.length >= valueInput.length){
             valueInput = defaultMatrix;
         }
-        
-        this.value = matrix.replace(/./g, (sumbol) => {
+       
+        this.value = matrix.replace(/./g, (symbol) => {
                
-            if(/[_\d]/.test(sumbol) && i < valueInput.length){
+            if(/[_\d]/.test(symbol) && i < valueInput.length){
                 return valueInput.charAt(i++);
 
             }else if(i >= valueInput.length){
                 return '';
 
             }else{
-                return sumbol;
+                return symbol;
             }
         });
-
+     
         if(event.type === 'blur'){
             if(valueInput.length == 2){
                 this.value = '';
@@ -48,11 +48,11 @@ const maskForNumberPhone  = (selector) => {
             setCursorPosition(this.value.length, this);
         }
     }
-
     inpitsPhone.forEach(input => {
         input.addEventListener('input', createMask);
         input.addEventListener('focus', createMask);
         input.addEventListener('blur', createMask);
+        input.addEventListener('click', createMask);
     });
 
 };
