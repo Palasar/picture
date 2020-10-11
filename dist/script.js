@@ -5231,6 +5231,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_forms__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/forms */ "./src/js/modules/forms.js");
 /* harmony import */ var _modules_maskForNumberPhone__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/maskForNumberPhone */ "./src/js/modules/maskForNumberPhone.js");
 /* harmony import */ var _modules_checkTextInputs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/checkTextInputs */ "./src/js/modules/checkTextInputs.js");
+/* harmony import */ var _modules_showMoreStyle__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/showMoreStyle */ "./src/js/modules/showMoreStyle.js");
+
 
 
 
@@ -5251,6 +5253,7 @@ window.addEventListener('DOMContentLoaded', function () {
   Object(_modules_maskForNumberPhone__WEBPACK_IMPORTED_MODULE_3__["default"])('[name=phone]');
   Object(_modules_checkTextInputs__WEBPACK_IMPORTED_MODULE_4__["default"])('[name=name]');
   Object(_modules_checkTextInputs__WEBPACK_IMPORTED_MODULE_4__["default"])('[name=message]');
+  Object(_modules_showMoreStyle__WEBPACK_IMPORTED_MODULE_5__["default"])('.button-styles', '.styles-2');
 });
 
 /***/ }),
@@ -5612,6 +5615,38 @@ var bindModal = function bindModal(btnSelector, modalSelector, closeSelector, gi
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (bindModal);
+
+/***/ }),
+
+/***/ "./src/js/modules/showMoreStyle.js":
+/*!*****************************************!*\
+  !*** ./src/js/modules/showMoreStyle.js ***!
+  \*****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/web.dom-collections.for-each */ "./node_modules/core-js/modules/web.dom-collections.for-each.js");
+/* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0__);
+
+
+var showMoreStyle = function showMoreStyle(targetSelector, cardSelector) {
+  var cards = document.querySelectorAll(cardSelector),
+      btn = document.querySelector(targetSelector);
+  cards.forEach(function (card) {
+    card.classList.add('animated', 'fadeInUp');
+  });
+  btn.addEventListener('click', function () {
+    cards.forEach(function (card) {
+      card.classList.remove('hidden-lg', 'hidden-md', 'hidden-sm', 'hidden-xs');
+      card.classList.add('col-sm-3', 'col-sm-offset-0', 'col-xs-10', 'col-xs-offset-1');
+    });
+    btn.remove();
+  });
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (showMoreStyle);
 
 /***/ }),
 

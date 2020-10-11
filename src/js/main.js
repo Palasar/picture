@@ -1,9 +1,10 @@
-import "core-js";
+
 import bindModal from './modules/modalWindow';
 import slider from './modules/slider';
 import forms from './modules/forms';
 import  maskForNumberPhone from './modules/maskForNumberPhone';
 import checklatinSymbol from './modules/checkTextInputs';
+import showMoreStyle from './modules/showMoreStyle';
 
 window.addEventListener('DOMContentLoaded', () => {
     'Use strict';
@@ -22,4 +23,5 @@ window.addEventListener('DOMContentLoaded', () => {
     maskForNumberPhone('[name=phone]');
     checklatinSymbol('[name=name]');
     checklatinSymbol('[name=message]');
+    showMoreStyle('.button-styles', '#styles .row');
 });

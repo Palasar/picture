@@ -1,4 +1,5 @@
 import { all } from "core-js/fn/promise";
+import {postData} from '../services/requests';
 
 const forms = () => {
     const allForms = document.querySelectorAll('form'),
@@ -17,13 +18,7 @@ const forms = () => {
               callBack: 'assets/callBackServer.php'
           };
     
-    async function postData  (src, data) {
-        let response =  await fetch(src, {
-            method: 'POST',
-            body: data
-        });
-        return await response.text();
-    }
+  
 
     function clearInputs(){
         inputs.forEach(input => {
