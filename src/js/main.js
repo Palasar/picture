@@ -6,6 +6,7 @@ import  maskForNumberPhone from './modules/maskForNumberPhone';
 import checklatinSymbol from './modules/checkTextInputs';
 import showMoreStyle from './modules/showMoreStyle';
 import calcCost from './modules/calc';
+import tabs from './modules/tabs';
 
 window.addEventListener('DOMContentLoaded', () => {
     'Use strict';
@@ -29,4 +30,5 @@ window.addEventListener('DOMContentLoaded', () => {
     showMoreStyle('.button-styles', '#styles .row');
 
     calcCost('#size', '#material', '#options', '.promocode', '.calc-price', state);
+    tabs();
 });

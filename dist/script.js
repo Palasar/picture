@@ -678,6 +678,29 @@ module.exports = !fails(function () {
 
 /***/ }),
 
+/***/ "./node_modules/core-js/internals/create-html.js":
+/*!*******************************************************!*\
+  !*** ./node_modules/core-js/internals/create-html.js ***!
+  \*******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var requireObjectCoercible = __webpack_require__(/*! ../internals/require-object-coercible */ "./node_modules/core-js/internals/require-object-coercible.js");
+
+var quot = /"/g;
+
+// B.2.3.2.1 CreateHTML(string, tag, attribute, value)
+// https://tc39.github.io/ecma262/#sec-createhtml
+module.exports = function (string, tag, attribute, value) {
+  var S = String(requireObjectCoercible(string));
+  var p1 = '<' + tag;
+  if (attribute !== '') p1 += ' ' + attribute + '="' + String(value).replace(quot, '&quot;') + '"';
+  return p1 + '>' + S + '</' + tag + '>';
+};
+
+
+/***/ }),
+
 /***/ "./node_modules/core-js/internals/create-iterator-constructor.js":
 /*!***********************************************************************!*\
   !*** ./node_modules/core-js/internals/create-iterator-constructor.js ***!
@@ -2836,6 +2859,27 @@ module.exports = function (O, defaultConstructor) {
 
 /***/ }),
 
+/***/ "./node_modules/core-js/internals/string-html-forced.js":
+/*!**************************************************************!*\
+  !*** ./node_modules/core-js/internals/string-html-forced.js ***!
+  \**************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var fails = __webpack_require__(/*! ../internals/fails */ "./node_modules/core-js/internals/fails.js");
+
+// check the existence of a method, lowercase
+// of a tag and escaping quotes in arguments
+module.exports = function (METHOD_NAME) {
+  return fails(function () {
+    var test = ''[METHOD_NAME]('"');
+    return test !== test.toLowerCase() || test.split('"').length > 3;
+  });
+};
+
+
+/***/ }),
+
 /***/ "./node_modules/core-js/internals/string-multibyte.js":
 /*!************************************************************!*\
   !*** ./node_modules/core-js/internals/string-multibyte.js ***!
@@ -3193,6 +3237,78 @@ module.exports = function (name) {
     else WellKnownSymbolsStore[name] = createWellKnownSymbol('Symbol.' + name);
   } return WellKnownSymbolsStore[name];
 };
+
+
+/***/ }),
+
+/***/ "./node_modules/core-js/modules/es.array.concat.js":
+/*!*********************************************************!*\
+  !*** ./node_modules/core-js/modules/es.array.concat.js ***!
+  \*********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var $ = __webpack_require__(/*! ../internals/export */ "./node_modules/core-js/internals/export.js");
+var fails = __webpack_require__(/*! ../internals/fails */ "./node_modules/core-js/internals/fails.js");
+var isArray = __webpack_require__(/*! ../internals/is-array */ "./node_modules/core-js/internals/is-array.js");
+var isObject = __webpack_require__(/*! ../internals/is-object */ "./node_modules/core-js/internals/is-object.js");
+var toObject = __webpack_require__(/*! ../internals/to-object */ "./node_modules/core-js/internals/to-object.js");
+var toLength = __webpack_require__(/*! ../internals/to-length */ "./node_modules/core-js/internals/to-length.js");
+var createProperty = __webpack_require__(/*! ../internals/create-property */ "./node_modules/core-js/internals/create-property.js");
+var arraySpeciesCreate = __webpack_require__(/*! ../internals/array-species-create */ "./node_modules/core-js/internals/array-species-create.js");
+var arrayMethodHasSpeciesSupport = __webpack_require__(/*! ../internals/array-method-has-species-support */ "./node_modules/core-js/internals/array-method-has-species-support.js");
+var wellKnownSymbol = __webpack_require__(/*! ../internals/well-known-symbol */ "./node_modules/core-js/internals/well-known-symbol.js");
+var V8_VERSION = __webpack_require__(/*! ../internals/engine-v8-version */ "./node_modules/core-js/internals/engine-v8-version.js");
+
+var IS_CONCAT_SPREADABLE = wellKnownSymbol('isConcatSpreadable');
+var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF;
+var MAXIMUM_ALLOWED_INDEX_EXCEEDED = 'Maximum allowed index exceeded';
+
+// We can't use this feature detection in V8 since it causes
+// deoptimization and serious performance degradation
+// https://github.com/zloirock/core-js/issues/679
+var IS_CONCAT_SPREADABLE_SUPPORT = V8_VERSION >= 51 || !fails(function () {
+  var array = [];
+  array[IS_CONCAT_SPREADABLE] = false;
+  return array.concat()[0] !== array;
+});
+
+var SPECIES_SUPPORT = arrayMethodHasSpeciesSupport('concat');
+
+var isConcatSpreadable = function (O) {
+  if (!isObject(O)) return false;
+  var spreadable = O[IS_CONCAT_SPREADABLE];
+  return spreadable !== undefined ? !!spreadable : isArray(O);
+};
+
+var FORCED = !IS_CONCAT_SPREADABLE_SUPPORT || !SPECIES_SUPPORT;
+
+// `Array.prototype.concat` method
+// https://tc39.github.io/ecma262/#sec-array.prototype.concat
+// with adding support of @@isConcatSpreadable and @@species
+$({ target: 'Array', proto: true, forced: FORCED }, {
+  concat: function concat(arg) { // eslint-disable-line no-unused-vars
+    var O = toObject(this);
+    var A = arraySpeciesCreate(O, 0);
+    var n = 0;
+    var i, k, length, len, E;
+    for (i = -1, length = arguments.length; i < length; i++) {
+      E = i === -1 ? O : arguments[i];
+      if (isConcatSpreadable(E)) {
+        len = toLength(E.length);
+        if (n + len > MAX_SAFE_INTEGER) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
+        for (k = 0; k < len; k++, n++) if (k in E) createProperty(A, n, E[k]);
+      } else {
+        if (n >= MAX_SAFE_INTEGER) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
+        createProperty(A, n++, E);
+      }
+    }
+    A.length = n;
+    return A;
+  }
+});
 
 
 /***/ }),
@@ -3925,6 +4041,30 @@ defineIterator(String, 'String', function (iterated) {
   point = charAt(string, index);
   state.index += point.length;
   return { value: point, done: false };
+});
+
+
+/***/ }),
+
+/***/ "./node_modules/core-js/modules/es.string.link.js":
+/*!********************************************************!*\
+  !*** ./node_modules/core-js/modules/es.string.link.js ***!
+  \********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var $ = __webpack_require__(/*! ../internals/export */ "./node_modules/core-js/internals/export.js");
+var createHTML = __webpack_require__(/*! ../internals/create-html */ "./node_modules/core-js/internals/create-html.js");
+var forcedStringHTMLMethod = __webpack_require__(/*! ../internals/string-html-forced */ "./node_modules/core-js/internals/string-html-forced.js");
+
+// `String.prototype.link` method
+// https://tc39.github.io/ecma262/#sec-string.prototype.link
+$({ target: 'String', proto: true, forced: forcedStringHTMLMethod('link') }, {
+  link: function link(url) {
+    return createHTML(this, 'a', 'href', url);
+  }
 });
 
 
@@ -5232,6 +5372,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_maskForNumberPhone__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/maskForNumberPhone */ "./src/js/modules/maskForNumberPhone.js");
 /* harmony import */ var _modules_checkTextInputs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/checkTextInputs */ "./src/js/modules/checkTextInputs.js");
 /* harmony import */ var _modules_showMoreStyle__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/showMoreStyle */ "./src/js/modules/showMoreStyle.js");
+/* harmony import */ var _modules_calc__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/calc */ "./src/js/modules/calc.js");
+/* harmony import */ var _modules_tabs__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./modules/tabs */ "./src/js/modules/tabs.js");
+
+
 
 
 
@@ -5243,18 +5387,85 @@ window.addEventListener('DOMContentLoaded', function () {
 
   var wasOpenWindow = {
     pressAnyBtn: false
-  };
+  },
+      state = {};
   Object(_modules_modalWindow__WEBPACK_IMPORTED_MODULE_0__["default"])('.button-design', '.popup-design', '.popup-design .popup-close', '.fixed-gift', wasOpenWindow);
   Object(_modules_modalWindow__WEBPACK_IMPORTED_MODULE_0__["default"])('.button-consultation', '.popup-consultation', '.popup-consultation .popup-close', '.fixed-gift', wasOpenWindow);
   Object(_modules_modalWindow__WEBPACK_IMPORTED_MODULE_0__["default"])('.fixed-gift', '.popup-gift', '.popup-gift .popup-close', '.fixed-gift', wasOpenWindow, true);
   Object(_modules_slider__WEBPACK_IMPORTED_MODULE_1__["default"])('', '.main-slider', '.main-slider-item', '', '', 'vertical');
   Object(_modules_slider__WEBPACK_IMPORTED_MODULE_1__["default"])('.feedback', '.feedback-slider', '.feedback-slider-item', '.main-next-btn', '.main-prev-btn');
-  Object(_modules_forms__WEBPACK_IMPORTED_MODULE_2__["default"])();
+  Object(_modules_forms__WEBPACK_IMPORTED_MODULE_2__["default"])(state);
   Object(_modules_maskForNumberPhone__WEBPACK_IMPORTED_MODULE_3__["default"])('[name=phone]');
   Object(_modules_checkTextInputs__WEBPACK_IMPORTED_MODULE_4__["default"])('[name=name]');
   Object(_modules_checkTextInputs__WEBPACK_IMPORTED_MODULE_4__["default"])('[name=message]');
-  Object(_modules_showMoreStyle__WEBPACK_IMPORTED_MODULE_5__["default"])('.button-styles', '.styles-2');
+  Object(_modules_showMoreStyle__WEBPACK_IMPORTED_MODULE_5__["default"])('.button-styles', '#styles .row');
+  Object(_modules_calc__WEBPACK_IMPORTED_MODULE_6__["default"])('#size', '#material', '#options', '.promocode', '.calc-price', state);
+  Object(_modules_tabs__WEBPACK_IMPORTED_MODULE_7__["default"])();
 });
+
+/***/ }),
+
+/***/ "./src/js/modules/calc.js":
+/*!********************************!*\
+  !*** ./src/js/modules/calc.js ***!
+  \********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/web.dom-collections.for-each */ "./node_modules/core-js/modules/web.dom-collections.for-each.js");
+/* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0__);
+
+
+var calcCost = function calcCost(sizeSelector, materialSelector, optionsSelector, promotionselector, calcResultSelector, state) {
+  var sizePicture = document.querySelector(sizeSelector),
+      materialPicture = document.querySelector(materialSelector),
+      optionsPicture = document.querySelector(optionsSelector),
+      promotion = document.querySelector(promotionselector),
+      pricePicture = document.querySelector(calcResultSelector);
+  var sum = 0;
+
+  function setState(e) {
+    var options = e.target.querySelectorAll('option');
+    options.forEach(function (option) {
+      if (option.value == e.target.value) {
+        state[e.target.getAttribute('id')] = option.innerText;
+      }
+    });
+    state.price = pricePicture.innerText;
+    console.log(state);
+  }
+
+  function calculPricePicture() {
+    sum = Math.round(+sizePicture.value * +materialPicture.value + +optionsPicture.value);
+    pricePicture.style.color = '#333';
+
+    if (sizePicture.value == '0') {
+      pricePicture.textContent = 'Пожалуйста выберите размер картины';
+    } else if (materialPicture.value == '0') {
+      pricePicture.textContent = 'Пожалуйста выберите материал картины';
+    } else if (promotion.value === 'IWANTPOPART') {
+      pricePicture.textContent = "\u0426\u0435\u043D\u0430: ".concat(Math.round(sum * 0.7), " \u0433\u0440\u043D");
+    } else {
+      pricePicture.textContent = "\u0426\u0435\u043D\u0430: ".concat(sum, " \u0433\u0440\u043D");
+    }
+  }
+
+  function addEvent(elem, event) {
+    elem.addEventListener(event, function (e) {
+      calculPricePicture();
+      setState(e);
+    });
+  }
+
+  addEvent(sizePicture, 'change');
+  addEvent(materialPicture, 'change');
+  addEvent(optionsPicture, 'change');
+  addEvent(promotion, 'input');
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (calcCost);
 
 /***/ }),
 
@@ -5310,10 +5521,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var core_js_modules_es_string_split__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_split__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! core-js/modules/web.dom-collections.for-each */ "./node_modules/core-js/modules/web.dom-collections.for-each.js");
 /* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! regenerator-runtime/runtime */ "./node_modules/regenerator-runtime/runtime.js");
-/* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_7__);
-/* harmony import */ var core_js_fn_promise__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! core-js/fn/promise */ "./node_modules/core-js/fn/promise/index.js");
-/* harmony import */ var core_js_fn_promise__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(core_js_fn_promise__WEBPACK_IMPORTED_MODULE_8__);
+/* harmony import */ var core_js_fn_promise__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! core-js/fn/promise */ "./node_modules/core-js/fn/promise/index.js");
+/* harmony import */ var core_js_fn_promise__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(core_js_fn_promise__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var _services_requests__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../services/requests */ "./src/js/services/requests.js");
 
 
 
@@ -5324,7 +5534,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var forms = function forms() {
+var forms = function forms(state) {
   var allForms = document.querySelectorAll('form'),
       inputs = document.querySelectorAll('input'),
       inputsUploadImg = document.querySelectorAll('[name = upload]'),
@@ -5340,34 +5550,6 @@ var forms = function forms() {
     ordrerDesigher: 'assets/desinerServer.php',
     callBack: 'assets/callBackServer.php'
   };
-
-  function postData(src, data) {
-    var response;
-    return regeneratorRuntime.async(function postData$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            _context.next = 2;
-            return regeneratorRuntime.awrap(fetch(src, {
-              method: 'POST',
-              body: data
-            }));
-
-          case 2:
-            response = _context.sent;
-            _context.next = 5;
-            return regeneratorRuntime.awrap(response.text());
-
-          case 5:
-            return _context.abrupt("return", _context.sent);
-
-          case 6:
-          case "end":
-            return _context.stop();
-        }
-      }
-    });
-  }
 
   function clearInputs() {
     inputs.forEach(function (input) {
@@ -5387,44 +5569,71 @@ var forms = function forms() {
       var dots = '';
       dots = arrNameFiles[0].length > 6 ? '...' : '.';
       nameLoadingImg.textContent = firstFiveLetters + dots + arrNameFiles[1];
+      state.file = input.files;
     });
   });
   allForms.forEach(function (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      form.classList.remove('fadeIn');
-      form.classList.add('animated', 'fadeOut');
-      setTimeout(function () {
-        form.style.display = 'none';
-      }, 400);
-      var statusMessage = document.createElement('div'),
-          statusImg = document.createElement('img'),
-          statusText = document.createElement('div');
-      statusMessage.classList.add('status');
-      form.parentNode.append(statusMessage);
-      statusImg.setAttribute('src', message.loadingImg);
-      statusMessage.append(statusImg);
-      statusText.textContent = message.loadingText;
-      statusMessage.append(statusText);
-      statusMessage.classList.add('animated', 'fadeIn');
-      var formData = new FormData(form);
-      var api = form.getAttribute('data-callBack') ? pathServer.callBack : pathServer.ordrerDesigher;
-      postData(api, formData).then(function (response) {
-        console.log(response);
-        statusImg.setAttribute('src', message.sucsessImg);
-        statusText.textContent = message.sucsessText;
-      }).catch(function () {
-        statusImg.setAttribute('src', message.failureImg);
-        statusText.textContent = message.failureText;
-      }).finally(function () {
-        clearInputs();
+
+      if (form.getAttribute('data-calc')) {
+        var consultBtn = document.querySelector('.button-consultation'),
+            _message = document.querySelector('.calc-price');
+
+        if (!state.hasOwnProperty('size') || !state.hasOwnProperty('material')) {
+          _message.style.color = 'red';
+        } else {
+          _message.style.color = '#333';
+          consultBtn.click();
+        }
+      } else {
+        form.classList.remove('fadeIn');
+        form.classList.add('animated', 'fadeOut');
         setTimeout(function () {
-          statusMessage.remove();
-          form.style.display = 'block';
-          form.classList.remove('fadeOut');
-          form.classList.add('fadeIn');
-        }, 5000);
-      });
+          form.style.display = 'none';
+        }, 400);
+        var statusMessage = document.createElement('div'),
+            statusImg = document.createElement('img'),
+            statusText = document.createElement('div');
+        statusMessage.classList.add('status');
+        form.parentNode.append(statusMessage);
+        statusImg.setAttribute('src', message.loadingImg);
+        statusMessage.append(statusImg);
+        statusText.textContent = message.loadingText;
+        statusMessage.append(statusText);
+        statusMessage.classList.add('animated', 'fadeIn');
+        var formData = new FormData(form);
+        console.log(state);
+        var obj = {};
+
+        if (form.getAttribute('data-callBack')) {
+          for (var key in state) {
+            formData.append(key, state[key]);
+          }
+        }
+
+        formData.forEach(function (property, key) {
+          obj[key] = property;
+        });
+        console.log(obj);
+        var api = form.getAttribute('data-callBack') ? pathServer.callBack : pathServer.ordrerDesigher;
+        Object(_services_requests__WEBPACK_IMPORTED_MODULE_8__["postData"])(api, formData).then(function (response) {
+          console.log(response);
+          statusImg.setAttribute('src', message.sucsessImg);
+          statusText.textContent = message.sucsessText;
+        }).catch(function () {
+          statusImg.setAttribute('src', message.failureImg);
+          statusText.textContent = message.failureText;
+        }).finally(function () {
+          setTimeout(function () {
+            clearInputs();
+            statusMessage.remove();
+            form.style.display = 'block';
+            form.classList.remove('fadeOut');
+            form.classList.add('fadeIn');
+          }, 5000);
+        });
+      }
     });
   });
 };
@@ -5627,22 +5836,46 @@ var bindModal = function bindModal(btnSelector, modalSelector, closeSelector, gi
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/web.dom-collections.for-each */ "./node_modules/core-js/modules/web.dom-collections.for-each.js");
-/* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var core_js_modules_es_array_concat__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/es.array.concat */ "./node_modules/core-js/modules/es.array.concat.js");
+/* harmony import */ var core_js_modules_es_array_concat__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_concat__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var core_js_modules_es_string_link__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! core-js/modules/es.string.link */ "./node_modules/core-js/modules/es.string.link.js");
+/* harmony import */ var core_js_modules_es_string_link__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_link__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! core-js/modules/web.dom-collections.for-each */ "./node_modules/core-js/modules/web.dom-collections.for-each.js");
+/* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _services_requests__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../services/requests */ "./src/js/services/requests.js");
 
 
-var showMoreStyle = function showMoreStyle(targetSelector, cardSelector) {
-  var cards = document.querySelectorAll(cardSelector),
-      btn = document.querySelector(targetSelector);
-  cards.forEach(function (card) {
-    card.classList.add('animated', 'fadeInUp');
-  });
-  btn.addEventListener('click', function () {
-    cards.forEach(function (card) {
-      card.classList.remove('hidden-lg', 'hidden-md', 'hidden-sm', 'hidden-xs');
-      card.classList.add('col-sm-3', 'col-sm-offset-0', 'col-xs-10', 'col-xs-offset-1');
+
+
+
+var showMoreStyle = function showMoreStyle(targetSelector, wrapperSelector) {
+  var btn = document.querySelector(targetSelector),
+      wrapperCards = document.querySelector(wrapperSelector);
+
+  function createCards() {
+    Object(_services_requests__WEBPACK_IMPORTED_MODULE_3__["getResource"])('http://localhost:3000/styles').then(function (response) {
+      response.forEach(function (_ref) {
+        var src = _ref.src,
+            title = _ref.title,
+            link = _ref.link;
+        var card = document.createElement('div');
+        card.classList.add('col-sm-3', 'col-sm-offset-0', 'col-xs-10', 'col-xs-offset-1', 'animated', 'fadeIn');
+        card.innerHTML = "\n                                <div class=styles-block>\n                                    <img src = ".concat(src, " alt>\n                                    <h4>").concat(title, "</h4>\n                                    <a href=\"").concat(link, "\">\u041F\u043E\u0434\u0440\u043E\u0431\u043D\u0435\u0435</a>\n                                </div>\n                ");
+        wrapperCards.append(card);
+      });
+    }).catch(function () {
+      var error = document.createElement('div');
+      error.textContent = new Error('Sorry, something went wrong');
+      error.style.color = 'red';
+      error.style.textAlign = 'center';
+      error.style.fontSize = '20px';
+      wrapperCards.append(error);
     });
-    btn.remove();
+  }
+
+  btn.addEventListener('click', function () {
+    createCards();
+    this.remove();
   });
 };
 
@@ -5767,6 +6000,145 @@ var slider = function slider(sectionSelector, wrapperSliderSelector, slideSelect
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (slider);
+
+/***/ }),
+
+/***/ "./src/js/modules/tabs.js":
+/*!********************************!*\
+  !*** ./src/js/modules/tabs.js ***!
+  \********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/web.dom-collections.for-each */ "./node_modules/core-js/modules/web.dom-collections.for-each.js");
+/* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0__);
+
+
+var tabs = function tabs() {
+  var portfolioMenu = document.querySelector('.portfolio-menu'),
+      tabs = portfolioMenu.querySelectorAll('li'),
+      pictures = document.querySelectorAll('.portfolio-wrapper .all'),
+      noPicture = document.querySelector('.portfolio-no');
+  portfolioMenu.addEventListener('click', function (e) {
+    var target = e.target;
+    tabs.forEach(function (tab) {
+      tab.classList.remove('active');
+    });
+    noPicture.style.display = 'none';
+    noPicture.classList.remove('animated', 'fadeIn');
+
+    if (target && target.tagName == 'LI') {
+      var tabClass = e.target.classList[0];
+      target.classList.add('active');
+      pictures.forEach(function (picture) {
+        picture.style.display = 'none';
+        picture.classList.remove('fadeIn', 'animated');
+
+        if (picture.classList.contains(tabClass)) {
+          picture.style.display = 'block';
+          picture.classList.add('animated', 'fadeIn');
+        } else {
+          noPicture.style.display = 'block';
+          noPicture.classList.add('animated', 'fadeIn');
+        }
+      });
+    }
+  });
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (tabs);
+
+/***/ }),
+
+/***/ "./src/js/services/requests.js":
+/*!*************************************!*\
+  !*** ./src/js/services/requests.js ***!
+  \*************************************/
+/*! exports provided: postData, getResource */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "postData", function() { return postData; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getResource", function() { return getResource; });
+/* harmony import */ var core_js_modules_es_array_concat__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/es.array.concat */ "./node_modules/core-js/modules/es.array.concat.js");
+/* harmony import */ var core_js_modules_es_array_concat__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_concat__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var core_js_modules_es_object_to_string__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! core-js/modules/es.object.to-string */ "./node_modules/core-js/modules/es.object.to-string.js");
+/* harmony import */ var core_js_modules_es_object_to_string__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_object_to_string__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var core_js_modules_es_promise__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! core-js/modules/es.promise */ "./node_modules/core-js/modules/es.promise.js");
+/* harmony import */ var core_js_modules_es_promise__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_promise__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! regenerator-runtime/runtime */ "./node_modules/regenerator-runtime/runtime.js");
+/* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_3__);
+
+
+
+
+
+function postData(src, data) {
+  var response;
+  return regeneratorRuntime.async(function postData$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          _context.next = 2;
+          return regeneratorRuntime.awrap(fetch(src, {
+            method: 'POST',
+            body: data
+          }));
+
+        case 2:
+          response = _context.sent;
+          _context.next = 5;
+          return regeneratorRuntime.awrap(response.text());
+
+        case 5:
+          return _context.abrupt("return", _context.sent);
+
+        case 6:
+        case "end":
+          return _context.stop();
+      }
+    }
+  });
+}
+
+function getResource(url) {
+  var response;
+  return regeneratorRuntime.async(function getResource$(_context2) {
+    while (1) {
+      switch (_context2.prev = _context2.next) {
+        case 0:
+          _context2.next = 2;
+          return regeneratorRuntime.awrap(fetch(url));
+
+        case 2:
+          response = _context2.sent;
+
+          if (response.ok) {
+            _context2.next = 5;
+            break;
+          }
+
+          throw new Error("could not fetch ".concat(url, ", status ").concat(response.status));
+
+        case 5:
+          _context2.next = 7;
+          return regeneratorRuntime.awrap(response.json());
+
+        case 7:
+          return _context2.abrupt("return", _context2.sent);
+
+        case 8:
+        case "end":
+          return _context2.stop();
+      }
+    }
+  });
+}
+
+
 
 /***/ })
 
