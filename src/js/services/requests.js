@@ -10,10 +10,9 @@ async function getResource  (url) {
     let response =  await fetch(url);
 
     if(!response.ok){
-        throw new Error(`could not fetch ${url}, status ${response.status}`)
+        throw new Error(`could not fetch ${url}, status ${response.status}`);
     }
     return await response.json();
 }
 
-export {postData, getResource};
-
+export {postData, getResource}; 
