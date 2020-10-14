@@ -9,6 +9,7 @@ import calcCost from './modules/calc';
 import tabs from './modules/tabs';
 import showPicture from './modules/showPicture';
 import {accordionV1, accordionV2} from './modules/accordion';
+import burger from './modules/burger';
 
 window.addEventListener('DOMContentLoaded', () => {
     'Use strict';
@@ -36,4 +37,5 @@ window.addEventListener('DOMContentLoaded', () => {
     showPicture('.sizes-block', '.sizes-hit');
     // accordionV1('.accordion-heading', '.accordion-block');
     accordionV2('.accordion-heading');
+    burger('.burger-menu', '.burger');
 });
