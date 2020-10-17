@@ -58,7 +58,7 @@ const bindModal = (btnSelector, modalSelector, closeSelector, giftSelector, wasO
         //     document.body.clientHeight, document.documentElement.clientHeight
         //   );
         
-    window.addEventListener('scroll', () => {
+        window.addEventListener('scroll', () => {
         
         const heightOfAllDocument = document.documentElement.scrollHeight,
                 heightWindowWithScroll = document.documentElement.clientHeight + window.pageYOffset;
@@ -66,13 +66,9 @@ const bindModal = (btnSelector, modalSelector, closeSelector, giftSelector, wasO
         if(( heightOfAllDocument <= heightWindowWithScroll ) && !wasOpenWindow.pressAnyBtn){
             gift.click();
             
-        }
-
-    });
-
-        
+            }
+        });
     }
-    
     btnOpenModals.forEach(btnOpen => {
         btnOpen.addEventListener('click', () => {
             closeModal();
