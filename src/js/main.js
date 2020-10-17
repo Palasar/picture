@@ -10,7 +10,7 @@ import tabs from './modules/tabs';
 import showPicture from './modules/showPicture';
 import {accordionV1, accordionV2} from './modules/accordion';
 import burger from './modules/burger';
-import {smoothScrolling} from './modules/scrolling';
+import {smoothScrolling, smoothScrollV2} from './modules/scrolling';
 
 window.addEventListener('DOMContentLoaded', () => {
     'Use strict';
@@ -39,12 +39,9 @@ window.addEventListener('DOMContentLoaded', () => {
     // accordionV1('.accordion-heading', '.accordion-block');
     accordionV2('.accordion-heading');
     burger('.burger-menu', '.burger');
-    smoothScrolling('.pageup');
-    smoothScrolling('[href="#portfolio"]');
-    smoothScrolling('[href="#styles"]');
-    smoothScrolling('[href="#often-questions"]');
-    smoothScrolling('[href="#scheme"]');
-    smoothScrolling('[href="#footer"]');
+
+    // smoothScrolling('[href^="#"]');
+    smoothScrollV2('[href^="#"]');
     
    
     

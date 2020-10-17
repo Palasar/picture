@@ -1,7 +1,5 @@
-const smoothScrolling = (linkSelector) => {
-    const linkElements = document.querySelectorAll(linkSelector);
-    
-    linkElements.forEach(linkElem => {
+const toggleUpButton = (buttons) => {
+    buttons.forEach(linkElem => {
         
         if(linkElem.getAttribute('data-up')){
            
@@ -18,6 +16,12 @@ const smoothScrolling = (linkSelector) => {
             });
         }
     });
+};
+
+const smoothScrolling = (linkSelector) => {
+    const linkElements = document.querySelectorAll(linkSelector);
+    
+    toggleUpButton(linkElements);
 
     function calcAnchorTop() {
 
@@ -47,7 +51,7 @@ const smoothScrolling = (linkSelector) => {
 
     function moveScroll(fromLink, toAnchor, hash) {
         let interval = 1,
-            speed = (fromLink > toAnchor) ? -15 : 15,
+            speed = (fromLink > toAnchor) ? -20 : 20,
             prevScrollTop,
 
             move = setInterval(() => {
@@ -59,7 +63,8 @@ const smoothScrolling = (linkSelector) => {
                    (fromLink > toAnchor && scrollTop <= toAnchor) 
                 ){
                     clearInterval(move);
-                    history.replaceState(null, document.title, location.href.replace(/#.*$/g, '') + hash);
+                    // history.replaceState(null, document.title, location.href.replace(/#.*$/g, '') + hash);
+                    location.hash = hash;
                 }else{
                     document.documentElement.scrollTop += speed;
                     document.body.scrollTop += speed;
@@ -70,4 +75,45 @@ const smoothScrolling = (linkSelector) => {
     }
     calcAnchorTop();  
 };
-export {smoothScrolling};
+
+const smoothScrollV2 = (linkSelector) => {
+     
+    const links = document.querySelectorAll(linkSelector);
+
+    toggleUpButton(links);
+
+    links.forEach(link => {
+        link.addEventListener('click', function() {
+            const hash = this.hash,
+                  distanceToAnchor = document.querySelector(hash).getBoundingClientRect().top,
+                  speed = 0.3,
+                  scrollTop = document.documentElement.scrollTop;
+            
+            let start = null;
+
+            requestAnimationFrame(step);
+            
+            function step(time){
+               start = start === null ? time : start;
+
+                let progress = time - start,
+                    stepAnimation;
+
+                if(distanceToAnchor < 0){
+                    stepAnimation = Math.max(scrollTop - progress/speed, scrollTop + distanceToAnchor);
+                }else{
+                    stepAnimation = Math.min(scrollTop + progress/speed, scrollTop + distanceToAnchor);
+                }
+
+                document.documentElement.scrollTo(0, stepAnimation);
+
+                if(stepAnimation != scrollTop + distanceToAnchor){
+                    requestAnimationFrame(step);
+                }else{
+                    location.hash = hash;
+                }
+            }
+        });
+    });
+};
+export {smoothScrolling, smoothScrollV2} ;

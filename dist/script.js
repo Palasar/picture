@@ -5412,13 +5412,9 @@ window.addEventListener('DOMContentLoaded', function () {
   Object(_modules_showPicture__WEBPACK_IMPORTED_MODULE_8__["default"])('.sizes-block', '.sizes-hit'); // accordionV1('.accordion-heading', '.accordion-block');
 
   Object(_modules_accordion__WEBPACK_IMPORTED_MODULE_9__["accordionV2"])('.accordion-heading');
-  Object(_modules_burger__WEBPACK_IMPORTED_MODULE_10__["default"])('.burger-menu', '.burger');
-  Object(_modules_scrolling__WEBPACK_IMPORTED_MODULE_11__["smoothScrolling"])('.pageup');
-  Object(_modules_scrolling__WEBPACK_IMPORTED_MODULE_11__["smoothScrolling"])('[href="#portfolio"]');
-  Object(_modules_scrolling__WEBPACK_IMPORTED_MODULE_11__["smoothScrolling"])('[href="#styles"]');
-  Object(_modules_scrolling__WEBPACK_IMPORTED_MODULE_11__["smoothScrolling"])('[href="#often-questions"]');
-  Object(_modules_scrolling__WEBPACK_IMPORTED_MODULE_11__["smoothScrolling"])('[href="#scheme"]');
-  Object(_modules_scrolling__WEBPACK_IMPORTED_MODULE_11__["smoothScrolling"])('[href="#footer"]');
+  Object(_modules_burger__WEBPACK_IMPORTED_MODULE_10__["default"])('.burger-menu', '.burger'); // smoothScrolling('[href^="#"]');
+
+  Object(_modules_scrolling__WEBPACK_IMPORTED_MODULE_11__["smoothScrollV2"])('[href^="#"]');
 });
 
 /***/ }),
@@ -5946,22 +5942,19 @@ var bindModal = function bindModal(btnSelector, modalSelector, closeSelector, gi
 /*!*************************************!*\
   !*** ./src/js/modules/scrolling.js ***!
   \*************************************/
-/*! exports provided: smoothScrolling */
+/*! exports provided: smoothScrolling, smoothScrollV2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "smoothScrolling", function() { return smoothScrolling; });
-/* harmony import */ var core_js_modules_es_string_replace__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/es.string.replace */ "./node_modules/core-js/modules/es.string.replace.js");
-/* harmony import */ var core_js_modules_es_string_replace__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_replace__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! core-js/modules/web.dom-collections.for-each */ "./node_modules/core-js/modules/web.dom-collections.for-each.js");
-/* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "smoothScrollV2", function() { return smoothScrollV2; });
+/* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/web.dom-collections.for-each */ "./node_modules/core-js/modules/web.dom-collections.for-each.js");
+/* harmony import */ var core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_for_each__WEBPACK_IMPORTED_MODULE_0__);
 
 
-
-var smoothScrolling = function smoothScrolling(linkSelector) {
-  var linkElements = document.querySelectorAll(linkSelector);
-  linkElements.forEach(function (linkElem) {
+var toggleUpButton = function toggleUpButton(buttons) {
+  buttons.forEach(function (linkElem) {
     if (linkElem.getAttribute('data-up')) {
       window.addEventListener('scroll', function () {
         var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
@@ -5976,6 +5969,11 @@ var smoothScrolling = function smoothScrolling(linkSelector) {
       });
     }
   });
+};
+
+var smoothScrolling = function smoothScrolling(linkSelector) {
+  var linkElements = document.querySelectorAll(linkSelector);
+  toggleUpButton(linkElements);
 
   function calcAnchorTop() {
     linkElements.forEach(function (linkElem) {
@@ -6003,14 +6001,15 @@ var smoothScrolling = function smoothScrolling(linkSelector) {
 
   function moveScroll(fromLink, toAnchor, hash) {
     var interval = 1,
-        speed = fromLink > toAnchor ? -15 : 15,
+        speed = fromLink > toAnchor ? -20 : 20,
         prevScrollTop,
         move = setInterval(function () {
       var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
 
       if (prevScrollTop === scrollTop || fromLink < toAnchor && scrollTop >= toAnchor || fromLink > toAnchor && scrollTop <= toAnchor) {
-        clearInterval(move);
-        history.replaceState(null, document.title, location.href.replace(/#.*$/g, '') + hash);
+        clearInterval(move); // history.replaceState(null, document.title, location.href.replace(/#.*$/g, '') + hash);
+
+        location.hash = hash;
       } else {
         document.documentElement.scrollTop += speed;
         document.body.scrollTop += speed;
@@ -6020,6 +6019,41 @@ var smoothScrolling = function smoothScrolling(linkSelector) {
   }
 
   calcAnchorTop();
+};
+
+var smoothScrollV2 = function smoothScrollV2(linkSelector) {
+  var links = document.querySelectorAll(linkSelector);
+  toggleUpButton(links);
+  links.forEach(function (link) {
+    link.addEventListener('click', function () {
+      var hash = this.hash,
+          distanceToAnchor = document.querySelector(hash).getBoundingClientRect().top,
+          speed = 0.3,
+          scrollTop = document.documentElement.scrollTop;
+      var start = null;
+      requestAnimationFrame(step);
+
+      function step(time) {
+        start = start === null ? time : start;
+        var progress = time - start,
+            stepAnimation;
+
+        if (distanceToAnchor < 0) {
+          stepAnimation = Math.max(scrollTop - progress / speed, scrollTop + distanceToAnchor);
+        } else {
+          stepAnimation = Math.min(scrollTop + progress / speed, scrollTop + distanceToAnchor);
+        }
+
+        document.documentElement.scrollTo(0, stepAnimation);
+
+        if (stepAnimation != scrollTop + distanceToAnchor) {
+          requestAnimationFrame(step);
+        } else {
+          location.hash = hash;
+        }
+      }
+    });
+  });
 };
 
 
