@@ -61,11 +61,10 @@ const bindModal = (btnSelector, modalSelector, closeSelector, giftSelector, wasO
         window.addEventListener('scroll', () => {
         
         const heightOfAllDocument = document.documentElement.scrollHeight,
-                heightWindowWithScroll = document.documentElement.clientHeight + window.pageYOffset;
-        
-        if(( heightOfAllDocument <= heightWindowWithScroll ) && !wasOpenWindow.pressAnyBtn){
+              viewportWithScrolltop = Math.ceil(document.documentElement.clientHeight + window.pageYOffset);
+  
+        if(( heightOfAllDocument <= viewportWithScrolltop ) && !wasOpenWindow.pressAnyBtn){
             gift.click();
-            
             }
         });
     }

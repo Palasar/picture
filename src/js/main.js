@@ -11,6 +11,7 @@ import showPicture from './modules/showPicture';
 import {accordionV1, accordionV2} from './modules/accordion';
 import burger from './modules/burger';
 import {smoothScrolling, smoothScrollV2} from './modules/scrolling';
+import dragDrop from './modules/dragDrop';
 
 window.addEventListener('DOMContentLoaded', () => {
     'Use strict';
@@ -42,7 +43,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // smoothScrolling('[href^="#"]');
     smoothScrollV2('[href^="#"]');
-    
-   
-    
+
+    dragDrop();
 });
